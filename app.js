@@ -29,11 +29,13 @@ const { protect, authorize } = require("./middleware/authMiddleware");
 
 
 const app = express();
+app.set('trust proxy', 1); // Trust first proxy (Render)
 connectDB();
 
 app.use(cors({
   origin: process.env.FRONTEND_URI,
-  credentials: true
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
 }));
 
 app.use(logger('dev'));

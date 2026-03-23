@@ -13,7 +13,8 @@ const sendTokenResponse = (user, statusCode, res) => {
     const options = {
         expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production"
+        secure: true, // Always true for cross-domain cookies (Required for SameSite=None)
+        sameSite: "none"
     };
 
     res.status(statusCode).cookie("token", token, options).json({
@@ -67,7 +68,9 @@ exports.login = async (req, res) => {
 exports.logout = (req, res) => {
     res.cookie("token", "none", {
         expires: new Date(Date.now() + 10 * 1000),
-        httpOnly: true
+        httpOnly: true,
+        secure: true,
+        sameSite: "none"
     });
 
     res.status(200).json({ success: true, message: "Logged out" });
