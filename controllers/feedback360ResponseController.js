@@ -54,11 +54,15 @@ exports.submitFeedback = async (req, res) => {
 
       let duplicateQuery = {
         round: roundId,
-        browserSignature: browserSignature,
         role: r.role,
-        ipAddress: ipAddress,
         department: roleDoc.key === 'hod' ? (department && department !== "" ? department : null) : undefined
       };
+
+      if (browserSignature) {
+        duplicateQuery.browserSignature = browserSignature;
+      } else {
+        duplicateQuery.ipAddress = ipAddress;
+      }
 
 
       const existingRecord = await Feedback.findOne(duplicateQuery);

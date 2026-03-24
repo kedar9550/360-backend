@@ -60,12 +60,14 @@ exports.getFeedbackForm = async (req, res) => {
 
     // 4️ Base query
     const baseQuery = {
-      round: activeRound._id,
-      ipAddress: ipAddress
+      round: activeRound._id
     };
 
     if (browserSignature) {
       baseQuery.browserSignature = browserSignature;
+    } else {
+      // Fallback to IP only if no browser signature (though frontend should provide it)
+      baseQuery.ipAddress = ipAddress;
     }
 
     // 5️Separate HOD and other roles
