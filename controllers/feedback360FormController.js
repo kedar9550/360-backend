@@ -11,7 +11,7 @@ exports.getFeedbackForm = async (req, res) => {
 
   try {
 
-    const { school, department, browserSignature } = req.body;
+    const { school, department, browserSignature, employeeRole } = req.body;
 
     const ipAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
 
@@ -48,9 +48,23 @@ exports.getFeedbackForm = async (req, res) => {
     // 3️ Eligible roles
     const roleKeys = roleService.getEligibleRoles(school, department);
 
-    const roles = await Role.find({
+    let roles = await Role.find({
       key: { $in: roleKeys }
     });
+
+    if (employeeRole === "HOD") {
+      roles = roles.filter(r => r.key !== "hod");
+    } else if (employeeRole === "Assoc Dean/Dean") {
+      const excludedKeys = [
+        "hod",
+        "associate_dean_soe",
+        "associate_dean_fe",
+        "associate_dean_sos",
+        "associate_dean_sob",
+        "dean_sop"
+      ];
+      roles = roles.filter(r => !excludedKeys.includes(r.key));
+    }
 
     if (roles.length === 0) {
       return res.status(400).json({
@@ -170,7 +184,7 @@ exports.getFeedbackForm = async (req, res) => {
         name: role.name,
         assignedName, // Pass the assigned name
         empId,       // Pass the employee id
-        mandatory: role.mandatory,
+        mandatory: employeeRole === "Assoc Dean/Dean" ? false : role.mandatory,
         questions: []
       };
     });
